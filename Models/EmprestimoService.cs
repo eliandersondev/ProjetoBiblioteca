@@ -30,7 +30,7 @@ namespace Biblioteca.Models
             }
         }
 
-        public ICollection<Emprestimo> ListarTodos(FiltrosEmprestimos filtro=null)
+        public ICollection<Emprestimo> ListarTodos(FiltrosEmprestimos filtro)
         {
             using(BibliotecaContext bc = new BibliotecaContext())
             {
@@ -45,6 +45,18 @@ namespace Biblioteca.Models
                             query = bc.Emprestimos.Where(e => e.NomeUsuario.Contains(filtro.Filtro));
                         break;
 
+                        case "Livro":
+                            List<Livro> LivrosFiltrados = bc.Livros.Where(l => l.Titulo.Contains(filtro.Filtro)).ToList();
+
+                            List<int> LivrosIds = new List<int>();
+                            for(int i = 0; i < LivrosFiltrados.Count;i++){
+                                LivrosIds.Add(LivrosFiltrados[i].Id);
+                            }
+
+                            query = bc.Emprestimos.Where(e => LivrosIds.Contains(e.LivroId));
+                            var debug = query.ToList();
+                        break;
+
                         default:
                             query = bc.Emprestimos;
                         break;
@@ -55,7 +67,14 @@ namespace Biblioteca.Models
                     // caso filtro não tenha sido informado
                     query = bc.Emprestimos;
                 }
-                return bc.Emprestimos.Include(e => e.Livro).OrderByDescending(e => e.DataDevolucao).ToList();
+
+                List<Emprestimo> ListaConsulta = query.OrderBy(e => e.DataEmprestimo).ToList();
+
+                for (int i = 0; i < ListaConsulta.Count; i++){
+                    ListaConsulta[i].Livro = bc.Livros.Find(ListaConsulta[i].LivroId);
+                }
+
+                return ListaConsulta;
             }
         }
 
