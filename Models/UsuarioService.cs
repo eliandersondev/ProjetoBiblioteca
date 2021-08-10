@@ -6,12 +6,41 @@ namespace Biblioteca.Models
 {
     public class UsuarioService
     {
-        public void Inserir(Usuario user)
+        public void incluirUsuario(Usuario user)
         {
-            using(BibliotecaContext bc = new BibliotecaContext())
+            using (BibliotecaContext bc = new BibliotecaContext())
             {
                 bc.Usuarios.Add(user);
                 bc.SaveChanges();
+            }
+        }
+
+        public void editarUsuario(Usuario user)
+        {
+            using (BibliotecaContext bc = new BibliotecaContext())
+            {
+                Usuario usuario = bc.Usuarios.Find(user.Id);
+                usuario.Nome = user.Nome;
+                usuario.Login = user.Login;
+                usuario.Senha = user.Senha;
+                usuario.Tipo = user.Tipo;
+                bc.SaveChanges();
+            }
+        }
+
+        public void excluirUsuario(int id)
+        {
+            using (BibliotecaContext bc = new BibliotecaContext())
+            {
+                bc.Usuarios.Remove(bc.Usuarios.Find(id));
+                bc.SaveChanges();
+            }
+        }
+        public List<Usuario> ListarTodos()
+        {
+            using (BibliotecaContext bc = new BibliotecaContext())
+            {
+                return bc.Usuarios.ToList();
             }
         }
 
@@ -24,27 +53,15 @@ namespace Biblioteca.Models
                 usuario.Login = user.Login;
                 usuario.Senha = user.Senha;
                 usuario.Tipo = user.Tipo;
+
                 bc.SaveChanges();
             }
         }
 
-        public ICollection<Usuario> ListarTodos()
-        {
-            using(BibliotecaContext bc = new BibliotecaContext())
-            {
-                IQueryable<Usuario> query;
-                query = bc.Usuarios;
-                
-                //ordenação padrão
-                return query.OrderBy(user => user.Nome).ToList();
-            }
-        }
-       
 
-
-        public Usuario ObterPorId(int id)
+        public Usuario Listar(int id)
         {
-            using(BibliotecaContext bc = new BibliotecaContext())
+            using (BibliotecaContext bc = new BibliotecaContext())
             {
                 return bc.Usuarios.Find(id);
             }
